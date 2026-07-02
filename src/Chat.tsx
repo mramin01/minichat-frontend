@@ -36,7 +36,6 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
   }, [currentUser.id]);
 
   useEffect(() => {
-    // استفاده از wss برای اتصال امن روی اینترنت واقعی
     const ws = new WebSocket(`wss://chat-backend.kunqh238.workers.dev/api/ws?userId=${currentUser.id}`);
 
     ws.onmessage = (event) => {
@@ -101,35 +100,41 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100 font-sans" dir="rtl">
-      <div className={`w-full md:w-80 flex flex-col border-l border-slate-800 bg-slate-900 ${selectedUser ? "hidden md:flex" : "flex"}`}>
-        <div className="p-4 bg-slate-800 flex justify-between items-center border-b border-slate-700">
+    <div className="flex h-screen bg-slate-950 text-slate-100 font-sans relative overflow-hidden" dir="rtl">
+      {/* نئون‌های ملایم پس‌زمینه چت */}
+      <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full bg-indigo-600/5 blur-[150px] pointer-events-none" />
+      
+      {/* سایدبار شیشه‌ای آیفون */}
+      <div className={`w-full md:w-85 flex flex-col border-l border-white/5 bg-slate-900/30 backdrop-blur-2xl z-10 ${selectedUser ? "hidden md:flex" : "flex"}`}>
+        {/* هدر سایدبار */}
+        <div className="p-4 bg-slate-900/50 backdrop-blur-md flex justify-between items-center border-b border-white/5">
           <div className="overflow-hidden">
-            <p className="text-xs text-slate-400">کاربر فعلی:</p>
-            <p className="font-semibold text-sm truncate text-blue-400">{currentUser.email}</p>
+            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">کاربر فعلی</p>
+            <p className="font-semibold text-sm truncate text-blue-400 shadow-sm">{currentUser.email}</p>
           </div>
-          <button onClick={onLogout} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white text-xs px-2 py-1.5 rounded-lg transition">
+          <button onClick={onLogout} className="bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-xs font-medium px-3 py-2 rounded-xl border border-red-500/20 transition-all duration-300">
             خروج
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          <p className="text-xs text-slate-500 px-3 py-2">گفتگوها</p>
+        {/* لیست گفتگوها */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+          <p className="text-xs font-bold text-slate-500 px-2 py-1">گفتگوهای اخیر</p>
           {users.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center mt-4">کاربر دیگری یافت نشد.</p>
+            <p className="text-sm text-slate-600 text-center mt-6">کاربر دیگری یافت نشد.</p>
           ) : (
             users.map((user) => (
               <button
                 key={user.id}
                 onClick={() => setSelectedUser(user)}
-                className={`w-full text-right p-3 rounded-xl flex items-center gap-3 transition ${selectedUser?.id === user.id ? "bg-blue-600 text-white" : "hover:bg-slate-800 text-slate-300"}`}
+                className={`w-full text-right p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 border ${selectedUser?.id === user.id ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.3)]" : "bg-transparent hover:bg-white/5 border-transparent text-slate-300"}`}
               >
-                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-sm border border-slate-600">
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm border ${selectedUser?.id === user.id ? "bg-white/20 border-white/20" : "bg-slate-800 border-white/5 text-slate-300"}`}>
                   {user.email.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1 truncate">
-                  <p className="font-medium text-sm truncate">{user.email}</p>
-                  <p className="text-xs opacity-60 truncate">برای چت کلیک کنید...</p>
+                  <p className="font-semibold text-sm truncate">{user.email}</p>
+                  <p className={`text-xs truncate ${selectedUser?.id === user.id ? "text-blue-100" : "text-slate-500"}`}>جهت شروع گفتگو کلیک کنید</p>
                 </div>
               </button>
             ))
@@ -137,28 +142,36 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
         </div>
       </div>
 
-      <div className={`flex-1 flex flex-col bg-slate-950 ${!selectedUser ? "hidden md:flex justify-center items-center text-slate-500" : "flex"}`}>
+      {/* باکس چت اصلی */}
+      <div className={`flex-1 flex flex-col bg-transparent z-10 ${!selectedUser ? "hidden md:flex justify-center items-center text-slate-500" : "flex"}`}>
         {selectedUser ? (
           <>
-            <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-3">
-              <button onClick={() => setSelectedUser(null)} className="md:hidden text-blue-400 font-bold ml-2">← بازگشت</button>
-              <div className="w-10 h-10 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold border border-blue-500/30">
+            {/* هدر چت */}
+            <div className="p-4 bg-slate-900/40 backdrop-blur-md border-b border-white/5 flex items-center gap-3">
+              <button onClick={() => setSelectedUser(null)} className="md:hidden text-blue-400 font-semibold ml-2 text-sm transition hover:text-blue-300">
+                ← بازگشت
+              </button>
+              <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-600/20 to-cyan-500/20 text-blue-400 flex items-center justify-center font-bold border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
                 {selectedUser.email.substring(0, 2).toUpperCase()}
               </div>
               <div className="overflow-hidden">
-                <h3 className="font-semibold text-sm text-slate-200 truncate">{selectedUser.email}</h3>
-                <p className="text-xs text-emerald-400">اتصال زنده فعال</p>
+                <h3 className="font-bold text-sm text-slate-200 truncate">{selectedUser.email}</h3>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                  <p className="text-[11px] font-medium text-emerald-400">اتصال امن فعال</p>
+                </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
+            {/* بخش پیام‌ها */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/20">
               {messages.map((msg) => {
                 const isMe = msg.sender_id === currentUser.id;
                 return (
                   <div key={msg.id} className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[75%] rounded-2xl p-3 text-sm shadow-md break-words ${isMe ? "bg-blue-600 text-white rounded-br-none" : "bg-slate-800 text-slate-100 rounded-bl-none"}`}>
-                      <p>{msg.content}</p>
-                      <span className="block text-[10px] text-right opacity-50 mt-1">
+                    <div className={`max-w-[70%] rounded-2xl px-4 py-3 text-sm shadow-xl break-words transition-all duration-300 border ${isMe ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500/30 rounded-br-none shadow-[0_0_20px_rgba(37,99,235,0.2)]" : "bg-slate-900/80 text-slate-100 border-white/5 rounded-bl-none backdrop-blur-sm"}`}>
+                      <p className="leading-relaxed">{msg.content}</p>
+                      <span className="block text-[9px] text-left opacity-40 mt-1.5 tracking-tighter">
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
@@ -168,21 +181,24 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-4 bg-slate-900 border-t border-slate-800 flex gap-2">
+            {/* اینپوت شیک آیفونی ارسال پیام */}
+            <form onSubmit={handleSendMessage} className="p-4 bg-slate-900/30 backdrop-blur-md border-t border-white/5 flex gap-2.5">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="پیام خود را بنویسید..."
-                className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                className="flex-1 bg-slate-950/80 border border-white/5 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-all duration-300 focus:shadow-[0_0_15px_rgba(59,130,246,0.15)]"
               />
-              <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-5 py-3 rounded-xl text-sm transition">ارسال</button>
+              <button type="submit" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] text-white font-semibold px-6 py-3.5 rounded-2xl text-sm transition-all duration-300 active:scale-95">
+                ارسال
+              </button>
             </form>
           </>
         ) : (
-          <div className="text-center">
-            <div className="text-5xl mb-3">💬</div>
-            <p className="text-sm">یک کاربر را از منوی سمت راست انتخاب کن داداش و چت رو شروع کن!</p>
+          <div className="text-center opacity-80">
+            <div className="text-6xl mb-4 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">💬</div>
+            <p className="text-sm font-medium text-slate-400">یک گفتگو را از منوی سمت راست انتخاب کرده و چت را شروع کنید.</p>
           </div>
         )}
       </div>
