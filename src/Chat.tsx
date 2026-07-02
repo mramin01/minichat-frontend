@@ -26,7 +26,7 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch("https://chat-backend.kunqh238.workers.dev/api/users")
+    fetch("https://minichat-backend-gcao.onrender.com/api/users")
       .then((res) => res.json())
       .then((data) => {
         const otherUsers = data.filter((u: User) => u.id !== currentUser.id);
@@ -36,7 +36,8 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
   }, [currentUser.id]);
 
   useEffect(() => {
-    const ws = new WebSocket(`wss://chat-backend.kunqh238.workers.dev/api/ws?userId=${currentUser.id}`);
+    // اتصال مستقیم به وب‌ساکت سرور رندر
+    const ws = new WebSocket(`wss://minichat-backend-gcao.onrender.com/api/ws?userId=${currentUser.id}`);
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -56,7 +57,7 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
   useEffect(() => {
     if (!selectedUser) return;
 
-    fetch(`https://chat-backend.kunqh238.workers.dev/api/messages?sender_id=${currentUser.id}&receiver_id=${selectedUser.id}`)
+    fetch(`https://minichat-backend-gcao.onrender.com/api/messages?sender_id=${currentUser.id}&receiver_id=${selectedUser.id}`)
       .then((res) => res.json())
       .then((data) => setMessages(data))
       .catch((err) => console.error("خطا در لود پیام‌ها:", err));
@@ -77,7 +78,7 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
     };
 
     try {
-      const response = await fetch("https://chat-backend.kunqh238.workers.dev/api/messages/send", {
+      const response = await fetch("https://minichat-backend-gcao.onrender.com/api/messages/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(messageData),
@@ -101,12 +102,9 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans relative overflow-hidden" dir="rtl">
-      {/* نئون‌های ملایم پس‌زمینه چت */}
       <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full bg-indigo-600/5 blur-[150px] pointer-events-none" />
       
-      {/* سایدبار شیشه‌ای آیفون */}
       <div className={`w-full md:w-85 flex flex-col border-l border-white/5 bg-slate-900/30 backdrop-blur-2xl z-10 ${selectedUser ? "hidden md:flex" : "flex"}`}>
-        {/* هدر سایدبار */}
         <div className="p-4 bg-slate-900/50 backdrop-blur-md flex justify-between items-center border-b border-white/5">
           <div className="overflow-hidden">
             <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">کاربر فعلی</p>
@@ -117,7 +115,6 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
           </button>
         </div>
 
-        {/* لیست گفتگوها */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
           <p className="text-xs font-bold text-slate-500 px-2 py-1">گفتگوهای اخیر</p>
           {users.length === 0 ? (
@@ -142,11 +139,9 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
         </div>
       </div>
 
-      {/* باکس چت اصلی */}
       <div className={`flex-1 flex flex-col bg-transparent z-10 ${!selectedUser ? "hidden md:flex justify-center items-center text-slate-500" : "flex"}`}>
         {selectedUser ? (
           <>
-            {/* هدر چت */}
             <div className="p-4 bg-slate-900/40 backdrop-blur-md border-b border-white/5 flex items-center gap-3">
               <button onClick={() => setSelectedUser(null)} className="md:hidden text-blue-400 font-semibold ml-2 text-sm transition hover:text-blue-300">
                 ← بازگشت
@@ -163,7 +158,6 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
               </div>
             </div>
 
-            {/* بخش پیام‌ها */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/20">
               {messages.map((msg) => {
                 const isMe = msg.sender_id === currentUser.id;
@@ -181,7 +175,6 @@ export default function Chat({ currentUser, onLogout }: ChatProps) {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* اینپوت شیک آیفونی ارسال پیام */}
             <form onSubmit={handleSendMessage} className="p-4 bg-slate-900/30 backdrop-blur-md border-t border-white/5 flex gap-2.5">
               <input
                 type="text"
