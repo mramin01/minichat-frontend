@@ -19,7 +19,8 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
     const endpoint = isLogin ? "/api/login" : "/api/register";
     
     try {
-      const response = await fetch(`https://chat-backend.kunqh238.workers.dev${endpoint}`, {
+      // اتصال به بک‌آند جدید و واقعی رندر
+      const response = await fetch(`https://minichat-backend-gcao.onrender.com${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -45,11 +46,9 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white font-sans relative overflow-hidden" dir="rtl">
-      {/* هاله‌های نئونی پس‌زمینه به سبک آیفون */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-600/10 blur-[120px]" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-purple-600/10 blur-[120px]" />
 
-      {/* کارت اصلی شیشه‌ای (Glassmorphism) */}
       <div className="w-full max-w-md rounded-3xl bg-slate-900/40 backdrop-blur-xl p-8 shadow-[0_0_50px_rgba(37,99,235,0.15)] border border-white/10 z-10">
         <div className="mb-8 text-center">
           <div className="inline-block rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-4 text-3xl shadow-[0_0_20px_rgba(37,99,235,0.5)]">
